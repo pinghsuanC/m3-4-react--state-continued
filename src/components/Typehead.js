@@ -172,7 +172,7 @@ const Li = styled.li`
   border-radius: 5px;
 
   &:hover {
-    background: lightgray !important;
+    background: lightblue !important;
   }
   .category {
     color: lightgray;
