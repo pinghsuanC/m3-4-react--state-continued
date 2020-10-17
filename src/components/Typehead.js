@@ -7,7 +7,7 @@ import data from "../data";
 const Typehead = ({ suggestions, handleSelect }) => {
   const [val, setVal] = useState(""); // state for value
   const [ph, setPh] = useState("Please enter some text..."); // state for place holder
-  const [selected_ind, setSelected] = useState(0);
+  const [selected_ind, setSelected] = useState(-1);
 
   // console.log(data.books);
   let filtered_list = data.books.filter((ele) => {
@@ -139,7 +139,7 @@ const Typehead = ({ suggestions, handleSelect }) => {
 };
 
 const Div = styled.div`
-  margin-top: 100px;
+  margin-top: 50px;
   margin-left: 200px;
   width: 50%;
   display: flex;
@@ -147,7 +147,7 @@ const Div = styled.div`
   align-items: flex-start;
 `;
 const Div_inner = styled.div`
-  margin-bottom: 40px;
+  margin-bottom: 10px;
   align-self: center;
 `;
 const Prediction = styled.span`
@@ -172,28 +172,39 @@ const Li = styled.li`
   border-radius: 5px;
 
   &:hover {
-    background: lightgray;
+    background: lightgray !important;
   }
   .category {
     color: lightgray;
-    font-size: 0.9em;
+    font-size: 1.1em;
+    font-style: italic;
   }
   .category-inner {
     color: purple;
     font-size: 0.8em;
-    font-style: italic;
   }
 `;
 const Li_title = styled.li`
   line-height: 25px;
   color: gray;
   padding-left: 20px;
-  font-size: 0.8em;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  font-size: 1em;
 `;
 const Button = styled.button`
+  height: 40px;
+  width: 70px;
   margin-left: 10px;
+  background-color: lightblue;
+  border-radius: 5px;
+  &:focus {
+    outline: none;
+  }
 `;
 const Input = styled.input`
+  width: 300px;
+  height: 40px;
   &:focus {
     outline: none;
   }
