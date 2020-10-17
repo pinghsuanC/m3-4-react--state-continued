@@ -29,7 +29,7 @@ const Typehead = ({ suggestions, handleSelect }) => {
     sorted_books[data.categories[ele.categoryId].index].book_sub.push(ele);
     sorted_books[data.categories[ele.categoryId].index].count++;
   });
-  console.log(sorted_books);
+  //console.log(sorted_books);
   return (
     <>
       <Div>
