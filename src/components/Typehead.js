@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import GlobalStyles from "./GlobalStyles";
 import styled from "styled-components";
 import data from "../data";
-import SubCategory from "./SubCategory";
+//import SubCategory from "./SubCategory";
 
 const Typehead = ({ suggestions, handleSelect }) => {
   const [val, setVal] = useState(""); // state for value
@@ -24,10 +24,12 @@ const Typehead = ({ suggestions, handleSelect }) => {
     { categoryName: "Comedy", book_sub: [], count: 0 },
   ];
   filtered_list.map((ele) => {
+    let k = ele.title.toLowerCase();
+    ele["halfIndex"] = k.indexOf(val.toLowerCase());
     sorted_books[data.categories[ele.categoryId].index].book_sub.push(ele);
     sorted_books[data.categories[ele.categoryId].index].count++;
   });
-
+  console.log(sorted_books);
   return (
     <>
       <Div>
@@ -77,25 +79,56 @@ const Typehead = ({ suggestions, handleSelect }) => {
         </Div_inner>
         {filtered_list.length > 0 && val !== "" && (
           <Ul>
-            {filtered_list.map((ele, ind) => {
-              let isSelected = selected_ind === ind ? true : false;
+            {sorted_books.map((ele, ele_ind) => {
               return (
-                <Li
-                  key={ele.id}
-                  onMouseOver={() => {
-                    // mouse over then set the value to book (looks nicer)
-                    setPh(ele.title);
-                  }}
-                  onClick={() => {
-                    setVal(ele.title); // set the input to title
-                    handleSelect(ele.title); // evoke handler
-                  }}
-                  style={{
-                    background: isSelected ? "lightgray" : "transparent",
-                  }}
-                >
-                  {ele.title}
-                </Li>
+                ele.count > 0 && ( // eliminate the ones with no counts
+                  <div key={`subCategory-${ele_ind}`}>
+                    <Li_title>{ele.categoryName}</Li_title>
+                    {ele.book_sub.map((elem, ind) => {
+                      // get the cum of books before current location
+                      let i = 0;
+                      let count = 0;
+                      while (i < ele_ind) {
+                        // this way is not really elegant but rightnow it's the way I thought of and it works
+                        // loop until current catgory name, and increment the count
+                        count += sorted_books[i].count;
+                        i++; // add i
+                      }
+                      let isSelected =
+                        selected_ind - count === ind ? true : false;
+                      return (
+                        <Li
+                          key={elem.id}
+                          onMouseOver={() => {
+                            // mouse over then set the value to book (looks nicer)
+                            setPh(elem.title);
+                          }}
+                          onClick={() => {
+                            setVal(elem.title); // set the input to title
+                            handleSelect(elem.title); // evoke handler
+                          }}
+                          style={{
+                            background: isSelected
+                              ? "lightgray"
+                              : "transparent",
+                          }}
+                        >
+                          {elem.title.substr(0, elem.halfIndex)}
+                          <Prediction>
+                            {elem.title.substr(elem.halfIndex)}
+                          </Prediction>
+                          <span className="category">
+                            {" "}
+                            in{" "}
+                            <span className="category-inner">
+                              {ele.categoryName}
+                            </span>
+                          </span>
+                        </Li>
+                      );
+                    })}
+                  </div>
+                )
               );
             })}
           </Ul>
@@ -117,6 +150,9 @@ const Div_inner = styled.div`
   margin-bottom: 40px;
   align-self: center;
 `;
+const Prediction = styled.span`
+  font-weight: bold;
+`;
 const Ul = styled.ul`
   height: auto;
   width: 100%;
@@ -133,10 +169,26 @@ const Li = styled.li`
   line-height: 20px;
   padding: 5px;
   font-size: 0.9em;
+  border-radius: 5px;
 
   &:hover {
     background: lightgray;
   }
+  .category {
+    color: lightgray;
+    font-size: 0.9em;
+  }
+  .category-inner {
+    color: purple;
+    font-size: 0.8em;
+    font-style: italic;
+  }
+`;
+const Li_title = styled.li`
+  line-height: 25px;
+  color: gray;
+  padding-left: 20px;
+  font-size: 0.8em;
 `;
 const Button = styled.button`
   margin-left: 10px;
