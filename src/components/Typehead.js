@@ -9,6 +9,14 @@ const Typehead = ({ suggestions, handleSelect }) => {
   const [ph, setPh] = useState("Please enter some text..."); // state for place holder
   const [selected_ind, setSelected] = useState(-1);
 
+  const handlePh = (selected, title) => {
+    if (selected) {
+      setPh(title);
+      return;
+    } else {
+      return;
+    }
+  };
   // console.log(data.books);
   let filtered_list = data.books.filter((ele) => {
     let title = ele.title.toLowerCase();
@@ -23,12 +31,20 @@ const Typehead = ({ suggestions, handleSelect }) => {
     { categoryName: "Non Fiction", book_sub: [], count: 0 },
     { categoryName: "Comedy", book_sub: [], count: 0 },
   ];
-  filtered_list.map((ele) => {
+  filtered_list.map((ele, ind) => {
     let k = ele.title.toLowerCase();
     ele["halfIndex"] = k.indexOf(val.toLowerCase());
+    ele["originInd"] = ind;
     sorted_books[data.categories[ele.categoryId].index].book_sub.push(ele);
     sorted_books[data.categories[ele.categoryId].index].count++;
   });
+  let selectedSuggestion = {
+    id: "",
+    categoryId: "",
+    title: "",
+    author: "",
+  };
+
   //console.log(sorted_books);
   return (
     <>
@@ -38,17 +54,26 @@ const Typehead = ({ suggestions, handleSelect }) => {
             type="text"
             value={val}
             placeholder={ph}
+            autofocus
             onChange={(event) => setVal(event.target.value)} // set value with state
+            aria-describedby="initInstr"
+            aria-owns="search-results"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-autocomplete="list"
+            aria-activedescendant="search-results"
             onKeyDown={(event) => {
               switch (event.key) {
                 case "Enter": {
-                  handleSelect(event.target.value);
+                  setVal(selectedSuggestion.title);
+                  handleSelect(selectedSuggestion.title);
                   return;
                 }
                 case "ArrowUp": {
                   // TODO: Handle moving the selection up
                   if (selected_ind - 1 >= 0 && filtered_list.length > 0) {
                     setSelected(selected_ind - 1);
+                    setPh(selectedSuggestion.title);
                   }
                   return;
                 }
@@ -59,11 +84,13 @@ const Typehead = ({ suggestions, handleSelect }) => {
                     filtered_list.length > 0
                   ) {
                     setSelected(selected_ind + 1);
+                    setPh(selectedSuggestion.title);
                   }
                   return;
                 }
                 case "Escape": {
                   setVal("");
+                  setPh("Please enter some text");
                 }
               }
             }}
@@ -78,7 +105,7 @@ const Typehead = ({ suggestions, handleSelect }) => {
           </Button>
         </Div_inner>
         {filtered_list.length > 0 && val !== "" && (
-          <Ul>
+          <Ul id="search-results" role="listbox">
             {sorted_books.map((ele, ele_ind) => {
               return (
                 ele.count > 0 && ( // eliminate the ones with no counts
@@ -96,6 +123,9 @@ const Typehead = ({ suggestions, handleSelect }) => {
                       }
                       let isSelected =
                         selected_ind - count === ind ? true : false;
+                      if (isSelected) {
+                        selectedSuggestion = elem;
+                      }
                       return (
                         <Li
                           key={elem.id}
@@ -112,6 +142,9 @@ const Typehead = ({ suggestions, handleSelect }) => {
                               ? "lightgray"
                               : "transparent",
                           }}
+                          id={elem.title}
+                          role="option"
+                          aria-selected={`${isSelected}`}
                         >
                           {elem.title.substr(0, elem.halfIndex)}
                           <Prediction>
